@@ -34,6 +34,12 @@ final class AppState: ObservableObject {
             }
             .store(in: &cancellables)
 
+        // Restart the polling timer when the refresh interval setting changes.
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
+            .sink { [weak self] _ in self?.setupPeriodicRefresh() }
+            .store(in: &cancellables)
+
         // Fetch on startup if already authenticated (tokens stored from a previous run).
         if auth.isAuthenticated {
             Task { await self.refreshMeetings() }
@@ -50,9 +56,10 @@ final class AppState: ObservableObject {
     // MARK: - Private
 
     private func setupPeriodicRefresh() {
-        // Poll calendar every 5 minutes.
-        // TODO: read interval from AppStorage("refreshIntervalMinutes").
-        refreshTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { [weak self] _ in
+        refreshTimer?.invalidate()
+        let minutes = UserDefaults.standard.integer(forKey: "refreshIntervalMinutes")
+        let interval = TimeInterval((minutes > 0 ? minutes : 5) * 60)
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor in await self?.refreshMeetings() }
         }
     }

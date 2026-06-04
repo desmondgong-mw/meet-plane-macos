@@ -19,8 +19,7 @@ final class PlaneOverlayWindow: NSWindow {
             contentRect: screen.frame,
             styleMask:   [.borderless],
             backing:     .buffered,
-            defer:       false,
-            screen:      screen
+            defer:       false
         )
         configure()
     }
@@ -57,7 +56,8 @@ final class PlaneOverlayWindow: NSWindow {
             id:        "test-\(UUID().uuidString)",
             title:     "Test Meeting",
             startTime: Date().addingTimeInterval(5 * 60),
-            meetLink:  "https://meet.google.com/test"
+            endTime:   Date().addingTimeInterval(65 * 60),
+            meetLink:  nil
         ))
     }
 }

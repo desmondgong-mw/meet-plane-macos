@@ -1,12 +1,11 @@
 import SwiftUI
 
-/// Animates a [FLAG BANNER] ——— ✈️ assembly from off-screen left to off-screen right.
+/// Animates a [FLAG BANNER] ——— 🤖 assembly from off-screen left to off-screen right.
 ///
 /// The assembly layout (left → right):
-///   [ Flag banner text ] ——— rope ——— ✈️
+///   [ Flag banner text ] ——— rope ——— 🤖
 ///
-/// The plane leads (rightmost), the flag trails (leftmost), matching how a real
-/// banner-towing aircraft looks: the plane pulls the banner behind it.
+/// The robot leads (rightmost), the flag trails (leftmost).
 struct PlaneBannerView: View {
     let event: MeetingEvent
     let onComplete: () -> Void
@@ -55,9 +54,11 @@ struct PlaneBannerView: View {
                 .frame(width: 52, height: 3)
                 .shadow(color: .black.opacity(0.3), radius: 1, y: 1)
 
-            // Plane emoji — faces right (→), matching the direction of travel.
-            Text("✈️")
-                .font(.system(size: 52))
+            // Robot image — faces right (→), matching the direction of travel.
+            Image("robot")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 64, height: 64)
         }
     }
 
@@ -132,7 +133,8 @@ struct FlagShape: Shape {
             id:        "preview",
             title:     "Design Review",
             startTime: Date().addingTimeInterval(5 * 60),
-            meetLink:  "https://meet.google.com/preview"
+            endTime:   Date().addingTimeInterval(65 * 60),
+            meetLink:  nil
         ),
         onComplete: {}
     )

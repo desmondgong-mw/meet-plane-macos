@@ -76,13 +76,16 @@ final class GoogleCalendarClient: ObservableObject {
         else { return [] }
 
         return items.compactMap { item -> MeetingEvent? in
-            // Require a string title and a timed start (not an all-day "date" event).
+            // Require a timed start and end (not an all-day "date" event).
             guard
                 let id          = item["id"] as? String,
                 let summary     = item["summary"] as? String,
                 let start       = item["start"] as? [String: Any],
+                let end         = item["end"] as? [String: Any],
                 let dateTimeStr = start["dateTime"] as? String,
-                let startTime   = ISO8601DateFormatter().date(from: dateTimeStr)
+                let endDateTimeStr = end["dateTime"] as? String,
+                let startTime   = ISO8601DateFormatter().date(from: dateTimeStr),
+                let endTime     = ISO8601DateFormatter().date(from: endDateTimeStr)
             else { return nil }
 
             // Skip cancelled events.
@@ -95,10 +98,10 @@ final class GoogleCalendarClient: ObservableObject {
                 return nil
             }
 
-            // Require a Google Meet link.
-            guard let meetLink = extractMeetLink(from: item) else { return nil }
+            // Include all events; meetLink is optional.
+            let meetLink = extractMeetLink(from: item)
 
-            return MeetingEvent(id: id, title: summary, startTime: startTime, meetLink: meetLink)
+            return MeetingEvent(id: id, title: summary, startTime: startTime, endTime: endTime, meetLink: meetLink)
         }
     }
 

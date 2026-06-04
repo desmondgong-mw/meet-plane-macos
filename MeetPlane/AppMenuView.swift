@@ -7,6 +7,14 @@ struct AppMenuView: View {
     @EnvironmentObject private var authManager:   GoogleAuthManager
     @EnvironmentObject private var calendarClient: GoogleCalendarClient
 
+    /// Ticks every minute to re-evaluate which events have finished.
+    @State private var now = Date()
+    private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+
+    private var upcomingEvents: [MeetingEvent] {
+        calendarClient.events.filter { $0.endTime > now }
+    }
+
     var body: some View {
         // ── Authenticated state ──────────────────────────────────────────────
         if authManager.isAuthenticated {
@@ -45,6 +53,7 @@ struct AppMenuView: View {
         Button("Quit MeetPlane") {
             NSApplication.shared.terminate(nil)
         }
+        .onReceive(timer) { now = $0 }
     }
 
     // MARK: - Meeting List
@@ -55,16 +64,17 @@ struct AppMenuView: View {
             Text("Fetching meetings…")
         } else if let err = calendarClient.fetchError {
             Text("Error: \(err)").foregroundStyle(.red)
-        } else if calendarClient.events.isEmpty {
-            Text("No upcoming Google Meet meetings")
+        } else if upcomingEvents.isEmpty {
+            Text("No upcoming meetings")
         } else {
-            ForEach(calendarClient.events.prefix(8)) { event in
+            ForEach(upcomingEvents.prefix(8)) { event in
                 Button {
-                    if let url = URL(string: event.meetLink) {
+                    if let link = event.meetLink, let url = URL(string: link) {
                         NSWorkspace.shared.open(url)
                     }
                 } label: {
-                    Text("🎥  \(event.title)  ·  \(event.formattedStartTime)")
+                    let icon = event.meetLink != nil ? "🎥" : "📅"
+                    Text("\(icon)  \(event.title)  ·  \(event.formattedStartTime)–\(event.formattedEndTime)")
                 }
             }
             if let refreshed = calendarClient.lastRefreshed {

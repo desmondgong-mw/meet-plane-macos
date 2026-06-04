@@ -22,12 +22,11 @@ struct MeetPlaneApp: App {
     @StateObject private var appState = AppState()
 
     var body: some Scene {
-        MenuBarExtra("MeetPlane", systemImage: "airplane") {
+        MenuBarExtra {
             AppMenuView()
                 .environmentObject(appState)
                 .environmentObject(appState.authManager)
                 .environmentObject(appState.calendarClient)
-                // Wire the OS URL handler to the auth manager the first time the menu appears.
                 .onAppear {
                     appDelegate.onOpenURL = { url in
                         Task { @MainActor in
@@ -35,6 +34,11 @@ struct MeetPlaneApp: App {
                         }
                     }
                 }
+        } label: {
+            Image("robot")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 18, height: 18)
         }
         .menuBarExtraStyle(.menu)
 
