@@ -1,0 +1,19 @@
+# Xcode project — regenerate with `xcodegen generate`
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+.build/
+*.xcuserstate
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Swift Package Manager
+.swiftpm/
+
+# Secrets — never commit credentials
+Secrets.swift
+GoogleService-Info.plist

@@ -1,0 +1,24 @@
+name: MeetPlane
+
+options:
+  bundleIdPrefix: com.meetplane
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15.0"
+
+targets:
+  MeetPlane:
+    type: application
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - path: MeetPlane
+    info:
+      path: MeetPlane/Info.plist
+    entitlements:
+      path: MeetPlane/MeetPlane.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.meetplane.app
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
