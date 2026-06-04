@@ -8,6 +8,10 @@
 	<string>en</string>
 	<key>CFBundleExecutable</key>
 	<string>MeetPlane</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.meetplane.app</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -21,17 +25,6 @@
 	<key>CFBundleSupportedPlatforms</key>
 	<array>
 		<string>MacOSX</string>
-	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.meetplane.app</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.meetplane.app</string>
-			</array>
-		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
@@ -53,7 +46,5 @@
 	<string>17A400</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
-	<key>LSUIElement</key>
-	<true/>
 </dict>
 </plist>
