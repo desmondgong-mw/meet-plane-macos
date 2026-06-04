@@ -9,19 +9,33 @@ final class KeychainTokenStore {
     private let service          = "com.meetplane.oauth"
     private let accessTokenKey   = "access_token"
     private let refreshTokenKey  = "refresh_token"
+    private let tokenExpiryKey   = "token_expiry"
 
     private init() {}
 
     // MARK: - Public API
 
-    func saveAccessToken(_ token: String)   { save(token, forKey: accessTokenKey) }
+    func saveAccessToken(_ token: String, expiresIn: Int) {
+        save(token, forKey: accessTokenKey)
+        // Store expiry time with a 60-second safety margin.
+        let expiry = Date().addingTimeInterval(TimeInterval(expiresIn - 60))
+        save(expiry.timeIntervalSince1970.description, forKey: tokenExpiryKey)
+    }
+
     func saveRefreshToken(_ token: String)  { save(token, forKey: refreshTokenKey) }
     func loadAccessToken() -> String?       { load(forKey: accessTokenKey) }
     func loadRefreshToken() -> String?      { load(forKey: refreshTokenKey) }
 
+    func isAccessTokenValid() -> Bool {
+        guard let expiryStr = load(forKey: tokenExpiryKey),
+              let expiry = Double(expiryStr) else { return false }
+        return Date().timeIntervalSince1970 < expiry
+    }
+
     func clearTokens() {
         delete(forKey: accessTokenKey)
         delete(forKey: refreshTokenKey)
+        delete(forKey: tokenExpiryKey)
     }
 
     // MARK: - Private Helpers

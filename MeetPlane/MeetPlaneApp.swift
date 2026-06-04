@@ -9,6 +9,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Set this closure before the OAuth browser flow starts.
     var onOpenURL: ((URL) -> Void)?
 
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Hide from Dock and App Switcher — menu-bar-only app.
+        NSApp.setActivationPolicy(.accessory)
+    }
+
     func application(_ application: NSApplication, open urls: [URL]) {
         urls.forEach { onOpenURL?($0) }
     }

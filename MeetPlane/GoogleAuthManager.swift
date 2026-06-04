@@ -70,12 +70,17 @@ final class GoogleAuthManager: ObservableObject {
         Task { await exchangeCodeForTokens(code, verifier: verifier) }
     }
 
-    /// Returns the stored access token.
+    /// Returns a valid access token, refreshing it silently if expired.
     func getValidAccessToken() async throws -> String {
-        guard let token = tokenStore.loadAccessToken() else {
+        if tokenStore.isAccessTokenValid(), let token = tokenStore.loadAccessToken() {
+            return token
+        }
+        // Token missing or expired — attempt silent refresh.
+        guard let refreshToken = tokenStore.loadRefreshToken() else {
+            isAuthenticated = false
             throw AuthError.notAuthenticated
         }
-        return token
+        return try await refreshAccessToken(using: refreshToken)
     }
 
     // MARK: - Private Helpers
@@ -122,7 +127,7 @@ final class GoogleAuthManager: ObservableObject {
             }
 
             let token = try JSONDecoder().decode(TokenResponse.self, from: data)
-            tokenStore.saveAccessToken(token.accessToken)
+            tokenStore.saveAccessToken(token.accessToken, expiresIn: token.expiresIn)
             if let refresh = token.refreshToken {
                 tokenStore.saveRefreshToken(refresh)
             }
@@ -133,6 +138,37 @@ final class GoogleAuthManager: ObservableObject {
             print("[Auth] Token exchange failed: \(error)")
         }
         isLoading = false
+    }
+
+    private func refreshAccessToken(using refreshToken: String) async throws -> String {
+        var request = URLRequest(url: URL(string: OAuthConfig.tokenEndpoint)!)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        request.httpBody = [
+            "client_id":     OAuthConfig.clientID,
+            "grant_type":    "refresh_token",
+            "refresh_token": refreshToken
+        ]
+        .map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? $0.value)" }
+        .joined(separator: "&")
+        .data(using: .utf8)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let http = response as? HTTPURLResponse else {
+            throw AuthError.networkError("Invalid response during refresh")
+        }
+        guard http.statusCode == 200 else {
+            // Refresh token is invalid/revoked — force re-login.
+            tokenStore.clearTokens()
+            isAuthenticated = false
+            throw AuthError.notAuthenticated
+        }
+
+        let token = try JSONDecoder().decode(TokenResponse.self, from: data)
+        tokenStore.saveAccessToken(token.accessToken, expiresIn: token.expiresIn)
+        print("[Auth] Access token refreshed silently.")
+        return token.accessToken
     }
 
     // MARK: - PKCE Helpers
