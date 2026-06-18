@@ -15,6 +15,12 @@ targets:
       - path: MeetPlane
     info:
       path: MeetPlane/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleURLTypes:
+          - CFBundleURLName: com.meetplane.app
+            CFBundleURLSchemes:
+              - com.meetplane.app
     entitlements:
       path: MeetPlane/MeetPlane.entitlements
     settings:

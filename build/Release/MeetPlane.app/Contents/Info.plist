@@ -26,6 +26,17 @@
 	<array>
 		<string>MacOSX</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.meetplane.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.meetplane.app</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>DTCompiler</key>
@@ -46,5 +57,7 @@
 	<string>17A400</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
+	<key>LSUIElement</key>
+	<true/>
 </dict>
 </plist>
